@@ -10,7 +10,8 @@
 ## 사용방법
 
 **1.** 실행하면 다음과 같은 화면이 보일겁니다.
-![첫 실행화면](https://github.com/lleellee0/images/blob/master/20190307_003945.png?raw=true)
+
+<img width="656" height="746" alt="1" src="https://github.com/user-attachments/assets/c0f66818-d718-44f9-a759-2b81aa246de2" />
 
 여기에는 다음과 같은 입력 공간이 있습니다.
 - Play List URL
@@ -29,12 +30,15 @@ URL 칸에는 다음을 붙여넣을 수 있습니다.
 ![재생목록 URL](https://github.com/lleellee0/images/blob/master/20190307_003932.png?raw=true)
 
 **2.** Format에서 mp3나 mp4중에 하나를 선택합니다. m4a, wav, flac, ogg도 선택할 수 있습니다.
+
+<img width="95" height="259" alt="2" src="https://github.com/user-attachments/assets/af80f112-6fa4-4739-bbb2-80bc5c592a39" />
+
 사운드클라우드는 소리만 제공하므로 mp4를 고르면 화면 없는 파일이 만들어집니다.
 Select Download Path를 클릭하면 폴더 선택 창이 열립니다. 폴더를 하나 만드신 후 선택해주시기 바랍니다.
 
 **3.** 여기까지 입력 후 Start Download를 선택하시면 다운로드가 시작됩니다.
 
-![다운로드 시작](https://github.com/lleellee0/images/blob/master/20190307_004009.png?raw=true)
+<img width="659" height="747" alt="3" src="https://github.com/user-attachments/assets/0719064f-57dc-41c1-842e-a2b92c5c0f8c" />
 
 다음과 같이 지정한 경로에 파일이 생성되기 시작합니다.
 
