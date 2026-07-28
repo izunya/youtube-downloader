@@ -1,23 +1,28 @@
+'use strict'
 
-// progress 예제
-// https://github.com/lleellee0/node-ytdl-core/blob/master/example/progress.js
+// Electron 없이 다운로드 로직만 확인하는 스모크 테스트.
+//   node test.js "<재생목록 또는 영상 URL>" [포맷] [저장경로]
 
-const ytdl = require('ytdl-core');
-const fs = require('fs');
+const os = require('os')
+const { downloadPlaylist } = require('./src/downloader')
 
-let video = ytdl('https://www.youtube.com/watch?v=HVANBB2zRAc&list=PLqh5vK4CKWeZyaNrMmfGPJiPuGM0XX1kM');
+const [, , url, format = 'mp3', destination = os.tmpdir()] = process.argv
 
+if (!url) {
+  console.error('사용법: node test.js "<재생목록 또는 영상 URL>" [포맷] [저장경로]')
+  process.exit(1)
+}
 
-  video.pipe(fs.createWriteStream('video.mp4'));
-  video.once('response', () => {
-    starttime = Date.now();
-  });
-  video.on('progress', (chunkLength, downloaded, total) => {
-    console.log(chunkLength);
-    console.log(downloaded);
-    console.log(total);
-  });
+const emit = (channel, payload) => {
+  if (channel === 'download:log') console.log(`[${payload.level}] ${payload.message}`)
+}
 
-  video.on('end', () => {
-    console.log('완료');
-  });
+downloadPlaylist({ playlistUrl: url, format, destination }, emit)
+  .then((summary) => {
+    console.log(summary)
+    process.exitCode = summary.failed > 0 ? 1 : 0
+  })
+  .catch((err) => {
+    console.error(err.message)
+    process.exitCode = 1
+  })

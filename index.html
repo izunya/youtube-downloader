@@ -1,29 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
   <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:;">
     <title>Youtube Downloader</title>
-    <!-- CSS by https://codepen.io/frytyler/pen/EGdtg -->
     <link rel="stylesheet" href="./css/style.css">
   </head>
   <body>
-    <span style="font-size: 14px; color: white;" onclick="window.open('https://github.com/lleellee0/youtube-downloader', '_blank')">How to use?</span>
-    <div class="download">
-    	<h1>Youtube Downloader</h1>
-        <form method="post" onsubmit="return downloadYoutube();">
-          <input id="playListUrl" class="input-text" type="text" name="playListUrl" placeholder="Play List URL" required="required"/>
-          <input id="format" class="input-text" type="text" name="format" placeholder="Format(recomend mp3 or mp4)" required="required"/>
-          <input id="fake-path" class="input-text" type="path" placeholder="Select Download Path" required="required"/>
-          <input id="path" type="file" name="path" placeholder="Download Path" webkitdirectory/>
-          <button id="download" type="submit" class="btn btn-primary btn-block btn-large">
-            Start Download</button>
-        </form>
-        <div>
-          <textarea id="logArea" class="input-text" style="height: 150px; resize: none;" disabled></textarea>
+    <div class="app">
+      <header class="app-header">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3v12"></path>
+              <path d="m7 10 5 5 5-5"></path>
+              <path d="M4 19h16"></path>
+            </svg>
+          </span>
+          <div class="brand-text">
+            <h1>Youtube Downloader</h1>
+            <p class="brand-sub">YouTube · SoundCloud</p>
+          </div>
         </div>
+        <button id="help" type="button" class="ghost-button">사용법</button>
+      </header>
+
+      <main class="card">
+        <form id="download-form" class="form">
+          <div class="field">
+            <label class="field-label" for="playlistUrl">링크</label>
+            <input id="playlistUrl" class="input" type="url" name="playlistUrl"
+                   placeholder="https://www.youtube.com/watch?v=..."
+                   autocomplete="off" spellcheck="false" required>
+            <p class="field-hint">영상·트랙 하나 또는 재생목록 주소를 붙여넣으세요.</p>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label" for="format">형식</label>
+              <div class="select-wrap">
+                <select id="format" class="input select" name="format" required>
+                  <option value="mp3">mp3</option>
+                  <option value="mp4">mp4</option>
+                  <option value="m4a">m4a</option>
+                  <option value="wav">wav</option>
+                  <option value="flac">flac</option>
+                  <option value="ogg">ogg</option>
+                </select>
+              </div>
+            </div>
+            <div class="field field-grow">
+              <label class="field-label" for="destination">저장 위치</label>
+              <input id="destination" class="input input-clickable" type="text" name="destination"
+                     placeholder="클릭해서 폴더를 선택하세요" readonly required>
+            </div>
+          </div>
+
+          <button id="download" type="submit" class="primary-button">Start Download</button>
+        </form>
+
+        <div id="progress-row" class="progress-row" hidden>
+          <progress id="progress" class="progress" max="100" value="0"></progress>
+          <span id="progress-label" class="progress-label">준비 중</span>
+        </div>
+
+        <section class="log-section">
+          <div class="log-head">
+            <span class="log-title">진행 상황</span>
+            <button id="clear-log" type="button" class="ghost-button ghost-button-sm">지우기</button>
+          </div>
+          <div id="logArea" class="log" role="log" aria-live="polite"></div>
+        </section>
+      </main>
     </div>
-    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="./js/function.js"></script>
+
+    <script src="./js/log.js"></script>
+    <script src="./js/renderer.js"></script>
   </body>
 </html>
