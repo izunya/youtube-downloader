@@ -3,7 +3,7 @@
 본 프로그램이 법적으로 문제가 있으면 알려주세요.
 기타 문의사항도 limjs@izunya.dev으로 메일 바랍니다.
 
-이 프로그램은 Node.js와 Electron을 이용해 **유튜브와 사운드클라우드**의 영상/음원을 mp3나 mp4로 다운로드 받는 프로그램입니다. 사용을 위해선 먼저 [다운로드(2.0.0 버전)](https://github.com/izunya/youtube-downloader/releases/download/v2.0.0/youtube-downloader-2.0.0-win-x64.zip)를 받아주세요. 윈도우 32비트 버전입니다.(64비트에서도 사용가능)
+이 프로그램은 Node.js와 Electron을 이용해 **유튜브와 사운드클라우드**의 영상/음원을 mp3나 mp4로 다운로드 받는 프로그램입니다. 사용을 위해선 먼저 [다운로드(2.0.0 버전)](https://github.com/izunya/youtube-downloader/releases/download/v2.0.0/youtube-downloader-2.0.0-win-x64.zip)를 받아주세요. 윈도우 64비트 버전입니다.
 
 다운로드가 완료되었으면 압축을 해제해주세요. 압축을 해제하고 폴더로 들어가면 'youtube-downloader.exe'라는 파일이 있습니다. 이 파일을 실행하시면 됩니다.
 
