@@ -1,11 +1,11 @@
 'use strict'
 
-const { app, BrowserWindow, dialog, ipcMain, shell } = require('electron')
+const { app, BrowserWindow, Menu, dialog, ipcMain, shell } = require('electron')
 const path = require('path')
 
 const { downloadPlaylist } = require('./src/downloader')
 
-const HELP_URL = 'https://github.com/lleellee0/youtube-downloader'
+const HELP_URL = 'https://github.com/izunya/youtube-downloader'
 
 let downloadInProgress = false
 
@@ -42,6 +42,9 @@ const createWindow = () => {
 }
 
 app.whenReady().then(() => {
+  // File/Edit/View/Window 기본 메뉴바를 없앤다.
+  Menu.setApplicationMenu(null)
+
   createWindow()
 
   app.on('activate', () => {
