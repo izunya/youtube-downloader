@@ -51,11 +51,18 @@
                 </select>
               </div>
             </div>
-            <div class="field field-grow">
-              <label class="field-label" for="destination">저장 위치</label>
-              <input id="destination" class="input input-clickable" type="text" name="destination"
-                     placeholder="클릭해서 폴더를 선택하세요" readonly required>
+            <div class="field">
+              <label class="field-label" for="quality">품질</label>
+              <div class="select-wrap">
+                <select id="quality" class="input select" name="quality"></select>
+              </div>
             </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="destination">저장 위치</label>
+            <input id="destination" class="input input-clickable" type="text" name="destination"
+                   placeholder="클릭해서 폴더를 선택하세요" readonly required>
           </div>
 
           <button id="download" type="submit" class="primary-button">Start Download</button>

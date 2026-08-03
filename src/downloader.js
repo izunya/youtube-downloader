@@ -27,9 +27,33 @@ const ytdlp = create(ytdlpPath)
 // 컨테이너가 아니라 오디오만 필요한 포맷들
 const AUDIO_ONLY_FORMATS = new Set(['mp3', 'm4a', 'wav', 'flac', 'ogg', 'opus'])
 
+// 비트레이트를 지정해도 의미가 없는 무손실 포맷
+const LOSSLESS_FORMATS = new Set(['wav', 'flac'])
+
 // yt-dlp의 --audio-format 이름이 확장자와 다른 경우.
 // ogg를 그대로 넘기면 "invalid audio format" 오류가 나고, vorbis가 .ogg 파일을 만든다.
 const YTDLP_AUDIO_FORMAT = { ogg: 'vorbis' }
+
+// 화면에서 고를 수 있는 품질. 목록에 없는 값이 들어오면 기본값으로 되돌린다.
+const VIDEO_HEIGHTS = [360, 480, 720, 1080, 1440]
+const AUDIO_BITRATES = [128, 192, 256, 320]
+const DEFAULT_VIDEO_HEIGHT = 1080
+const DEFAULT_AUDIO_BITRATE = 320
+
+/**
+ * 영상이면 최대 세로 해상도를, 소리면 비트레이트를 돌려준다.
+ * 무손실 포맷은 비트레이트를 지정하지 않으므로 null이다.
+ */
+const resolveQuality = (format, requested) => {
+  if (LOSSLESS_FORMATS.has(format)) return null
+
+  const value = Number.parseInt(requested, 10)
+  const audio = AUDIO_ONLY_FORMATS.has(format)
+  const allowed = audio ? AUDIO_BITRATES : VIDEO_HEIGHTS
+  const fallback = audio ? DEFAULT_AUDIO_BITRATE : DEFAULT_VIDEO_HEIGHT
+
+  return allowed.includes(value) ? value : fallback
+}
 
 // yt-dlp의 출력에서 진행률과 확장자를 구분하기 위한 표식
 const PROGRESS_PREFIX = '@@progress'
@@ -133,8 +157,10 @@ const firstErrorLine = (err) => {
   return (errorLine || text.split('\n').pop() || '알 수 없는 오류').trim()
 }
 
-/** 트랙 하나를 받아서 요청한 포맷으로 저장하고, 저장된 경로를 돌려준다. */
-const downloadTrack = async (track, destination, format, onProgress) => {
+/** 트랙 하나를 받아서 요청한 포맷과 품질로 저장하고, 저장된 경로를 돌려준다. */
+const downloadTrack = async (track, options, onProgress) => {
+  const { destination, format } = options
+  const quality = resolveQuality(format, options.quality)
   const audioOnly = AUDIO_ONLY_FORMATS.has(format)
   const title = track.title || (await fetchTitle(track.url)) || 'untitled'
   const base = await uniqueBaseName(destination, sanitizeFileName(title), format)
@@ -163,16 +189,14 @@ const downloadTrack = async (track, destination, format, onProgress) => {
     flags.format = 'bestaudio/best'
     flags.extractAudio = true
     flags.audioFormat = YTDLP_AUDIO_FORMAT[format] || format
+    // 무손실 포맷은 비트레이트를 지정하지 않는다.
+    if (quality) flags.audioQuality = `${quality}K`
   } else {
-    // mp4에 av1/opus가 담기면 구형 플레이어에서 재생되지 않는다.
-    // H.264 + AAC를 먼저 찾고, 없을 때만 다른 코덱으로 내려간다.
-    flags.format = [
-      'bv*[vcodec^=avc1]+ba[acodec^=mp4a]',
-      'b[vcodec^=avc1][acodec^=mp4a]',
-      'bv*[ext=mp4]+ba[ext=m4a]',
-      'b[ext=mp4]',
-      'bv*+ba/b'
-    ].join('/')
+    flags.format = 'bv*+ba/b'
+    // 해상도를 먼저 맞추고, 같은 해상도 안에서만 코덱을 따진다.
+    // 조건식(height<=N)으로 h264를 우선하면 유튜브의 h264가 1080p까지만
+    // 있기 때문에 1440p를 골라도 1080p가 받아진다.
+    flags.formatSort = `res:${quality},vcodec:h264,acodec:aac`
     flags.mergeOutputFormat = format
     // 영상 트랙이 없으면 머지가 일어나지 않아 mergeOutputFormat이 무시된다.
     // 사운드클라우드처럼 소리만 있는 경우에도 요청한 컨테이너로 맞춰준다.
@@ -220,13 +244,14 @@ const downloadTrack = async (track, destination, format, onProgress) => {
  * 재생목록의 트랙들을 순서대로 받는다.
  * 하나가 실패해도 나머지 다운로드는 계속 진행한다.
  *
- * @param {{playlistUrl: string, format: string, destination: string}} options
+ * @param {{playlistUrl: string, format: string, destination: string, quality?: number|string}} options
  * @param {(channel: string, payload: unknown) => void} emit 진행 상황 알림
  */
 const downloadPlaylist = async (options, emit = () => {}) => {
   const playlistUrl = String(options?.playlistUrl ?? '').trim()
   const format = String(options?.format ?? '').trim().toLowerCase()
   const destination = String(options?.destination ?? '').trim()
+  const quality = resolveQuality(format, options?.quality)
 
   if (!playlistUrl) throw new Error('URL을 입력해주세요.')
   if (!/^[a-z0-9]{2,5}$/.test(format)) throw new Error('올바른 포맷이 아닙니다.')
@@ -246,6 +271,11 @@ const downloadPlaylist = async (options, emit = () => {}) => {
   }
   log(`${tracks.length}개의 항목을 찾았습니다.`)
 
+  if (quality) {
+    const unit = AUDIO_ONLY_FORMATS.has(format) ? `${quality}kbps` : `${quality}p`
+    log(`${format} / ${unit}로 받습니다.`)
+  }
+
   // 사운드클라우드처럼 영상이 없는 곳에서 mp4를 고르면 소리만 담긴 파일이 나온다.
   if (!AUDIO_ONLY_FORMATS.has(format) && isAudioOnlySource(playlistUrl)) {
     log(`${format}를 선택하셨지만 사운드클라우드는 소리만 제공합니다. 화면 없는 파일이 만들어집니다.`)
@@ -263,7 +293,8 @@ const downloadPlaylist = async (options, emit = () => {}) => {
     log(`${position} ${title || track.url}`)
 
     try {
-      const { filePath } = await downloadTrack({ ...track, title }, destination, format, (percent) => {
+      const trackOptions = { destination, format, quality }
+      const { filePath } = await downloadTrack({ ...track, title }, trackOptions, (percent) => {
         const rounded = Math.floor(percent)
         if (rounded === lastPercent) return // 진행률이 바뀔 때만 알린다.
         lastPercent = rounded
@@ -289,6 +320,10 @@ module.exports = {
   resolveTracks,
   sanitizeFileName,
   isAudioOnlySource,
+  resolveQuality,
+  VIDEO_HEIGHTS,
+  AUDIO_BITRATES,
+  LOSSLESS_FORMATS,
   ffmpegPath,
   ytdlpPath
 }
