@@ -36,7 +36,7 @@ const YTDLP_AUDIO_FORMAT = { ogg: 'vorbis' }
 
 // 화면에서 고를 수 있는 품질. 목록에 없는 값이 들어오면 기본값으로 되돌린다.
 const VIDEO_HEIGHTS = [360, 480, 720, 1080, 1440]
-const AUDIO_BITRATES = [128, 192, 256, 320]
+const AUDIO_BITRATES = [128, 160, 192, 256, 320]
 const DEFAULT_VIDEO_HEIGHT = 1080
 const DEFAULT_AUDIO_BITRATE = 320
 

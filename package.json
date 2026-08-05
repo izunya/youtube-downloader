@@ -1,6 +1,6 @@
 {
   "name": "youtube-downloader",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Electron app that downloads a YouTube playlist as mp3 or mp4",
   "main": "main.js",
   "scripts": {

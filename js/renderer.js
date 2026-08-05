@@ -24,6 +24,7 @@ const VIDEO_QUALITIES = [
 ]
 const AUDIO_QUALITIES = [
   { value: '128', label: '128 kbps' },
+  { value: '160', label: '160 kbps' },
   { value: '192', label: '192 kbps' },
   { value: '256', label: '256 kbps' },
   { value: '320', label: '320 kbps' }
